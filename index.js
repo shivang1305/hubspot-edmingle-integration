@@ -1,6 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const sync = require("./routes/sync.routes.js");
+const sync = require("./src/routes/sync.routes.js");
 
 dotenv.config();
 
