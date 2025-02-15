@@ -1,8 +1,10 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const sync = require("./src/routes/sync.routes.js");
+const connectDB = require("./src/db/config.js");
 
 dotenv.config();
+connectDB();
 
 const app = express();
 app.use(express.json());
