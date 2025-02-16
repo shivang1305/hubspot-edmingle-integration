@@ -1,9 +1,15 @@
 const axios = require("axios");
+const SyncState = require("../models/SyncState.model.js");
 
 const HUBSPOT_API_KEY = process.env.HUBSPOT_API_KEY;
 const HUBSPOT_BASE_URL = process.env.HUBSPOT_BASE_URL;
 
 const fetchStudentsFromHubspot = async () => {
+  const lastSync = await SyncState.findOne({});
+  const lastSyncTime = lastSync
+    ? lastSync.lastSycned.toISOString
+    : "2024-01-01T00:00:00Z";
+
   const reponse = await axios.get(
     `${HUBSPOT_BASE_URL}/crm/v3/objects/contacts`,
     {
