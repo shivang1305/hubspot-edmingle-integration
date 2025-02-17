@@ -1,10 +1,11 @@
+const SyncState = require("../models/SyncState.model");
 const {
   fetchEdmingleData,
   sendStudentsToEdmingle,
 } = require("../services/edmingle.service");
 const {
   sendDataToHubspot,
-  fetchStudentsFromHubspot,
+  fetchNewHubSpotStudents,
 } = require("../services/hubspot.service");
 
 const syncEdmingleToHubspot = async (_, res) => {
@@ -17,12 +18,34 @@ const syncEdmingleToHubspot = async (_, res) => {
   }
 };
 
-const syncHubspotToEdmingle = async (req, res) => {
-  try {
-    const hubspotStudents = await fetchStudentsFromHubspot();
-    await sendStudentsToEdmingle(hubspotStudents);
+const syncHubspotToEdmingle = async (_, res) => {
+  let lastSync = await SyncState.findOne();
 
-    res.status(200).json({ message: "Synced Hubspot data to Edmingle" });
+  if (!lastSync) {
+    console.log("🔹 First-time sync detected. Initializing lastSynced...");
+    lastSync = await SyncState.create({
+      lastSynced: new Date("2024-01-01T00:00:00Z"),
+    });
+  }
+
+  console.log(lastSync);
+
+  const lastSyncTime = lastSync
+    ? lastSync.lastSynced.toISOString()
+    : "2024-01-01T00:00:00Z";
+
+  try {
+    const newHubspotStudents = await fetchNewHubSpotStudents(lastSyncTime);
+
+    if (newHubspotStudents.length === 0) {
+      console.log("No new students to sync.");
+      res.status(200).json({ message: "No data to be synced" });
+    }
+    // await sendStudentsToEdmingle(newHubspotStudents);
+
+    // res.status(200).json({ message: "Synced Hubspot data to Edmingle" });
+
+    res.status(200).json({ newStudentsData: newHubspotStudents });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
