@@ -28,8 +28,6 @@ const syncHubspotToEdmingle = async (_, res) => {
     });
   }
 
-  console.log(lastSync);
-
   const lastSyncTime = lastSync
     ? lastSync.lastSynced.toISOString()
     : "2024-01-01T00:00:00Z";
