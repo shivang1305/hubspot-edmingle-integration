@@ -24,6 +24,11 @@ const sendStudentsToEdmingle = async (hubspotStudents) => {
       }
     );
   }
+
+  // Update last sync timestamp
+  await SyncState.updateOne({}, { lastSynced: new Date() }, { upsert: true });
+
+  console.log("New students synced to Edmingle.");
 };
 
 module.exports = { fetchEdmingleData, sendStudentsToEdmingle };
