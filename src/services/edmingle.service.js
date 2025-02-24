@@ -13,13 +13,13 @@ const fetchEdmingleData = async () => {
 
 const sendStudentsToEdmingle = async (hubspotStudents) => {
   for (const student of hubspotStudents) {
-    // search for the student in edmingle
-    // if the student already exists, update the student info otherwise create a new student
-    await axios.get(
-      `${EDMINGLE_BASE_URL}/students`,
+    // UPDATE the student record
+    await axios.post(
+      `${EDMINGLE_BASE_URL}/organization/students`,
       {
         name: student.properties.firstame,
         email: student.properties.email,
+        contact_number: student.properties.phone,
       },
       {
         headers: { Authorization: `Bearer ${EDMINGLE_API_KEY}` },
