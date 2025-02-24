@@ -1,8 +1,5 @@
 const axios = require("axios");
 
-const EDMINGLE_API_KEY = process.env.EDMINGLE_API_KEY;
-const EDMINGLE_BASE_URL = process.env.EDMINGLE_BASE_URL;
-
 const fetchEdmingleData = async () => {
   const response = await axios.get(`${EDMINGLE_BASE_URL}/batches`, {
     headers: { Authorization: `Bearer ${EDMINGLE_API_KEY}` },
@@ -13,18 +10,55 @@ const fetchEdmingleData = async () => {
 
 const sendStudentsToEdmingle = async (hubspotStudents) => {
   for (const student of hubspotStudents) {
-    // UPDATE the student record
-    await axios.post(
-      `${EDMINGLE_BASE_URL}/organization/students`,
+    const { email, firstname, lastname, phone } = student.properties;
+    const name = firstname + lastname;
+
+    // check that student already exist or not
+    // Search student api
+    const studentRecord = await axios.get(
+      `${process.env.EDMINGLE_BASE_URL}/student/search`,
       {
-        name: student.properties.firstame,
-        email: student.properties.email,
-        contact_number: student.properties.phone,
+        institution_id: process.env.EDMINGLE_INSTITUTION_ID,
+        student_email: email,
       },
       {
-        headers: { Authorization: `Bearer ${EDMINGLE_API_KEY}` },
+        headers: { Authorization: `Bearer ${process.env.EDMINGLE_API_KEY}` },
       }
     );
+
+    if (studentRecord) {
+      // UPDATE the student record
+      await axios.post(
+        `${process.env.EDMINGLE_BASE_URL}/organization/students`,
+        {
+          name: name,
+          email: email,
+          contact_number: phone,
+        },
+        {
+          headers: { Authorization: `Bearer ${process.env.EDMINGLE_API_KEY}` },
+        }
+      );
+    } else {
+      // CREATE the student record
+      await axios.post(
+        `${process.env.EDMINGLE_BASE_URL}/organization/students`,
+        {
+          JSONString: {
+            emails: [
+              {
+                contact_number_country_id: 103,
+                contact_number_dial_code: "+91",
+                email: email,
+                name: name,
+                organization_id: process.env.EDMINGLE_ORGANIZATION_ID,
+                contact_number: phone,
+              },
+            ],
+          },
+        }
+      );
+    }
   }
 
   // Update last sync timestamp
