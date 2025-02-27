@@ -22,11 +22,13 @@ const sendStudentsToEdmingle = async (hubspotStudents) => {
         student_email: email,
       },
       {
-        headers: { Authorization: `Bearer ${process.env.EDMINGLE_API_KEY}` },
+        headers: {
+          apikey: process.env.EDMINGLE_API_KEY,
+        },
       }
     );
 
-    if (studentRecord) {
+    if (studentRecord.status === 200) {
       // UPDATE the student record
       await axios.post(
         `${process.env.EDMINGLE_BASE_URL}/organization/students`,
