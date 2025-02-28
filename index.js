@@ -9,7 +9,7 @@ connectDB();
 const app = express();
 app.use(express.json());
 
-app.use("/sync", sync);
+app.use("/api/v1/sync", sync);
 
 const PORT = process.env.PORT || 6000;
 
