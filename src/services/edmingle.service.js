@@ -15,6 +15,7 @@ const sendStudentsToEdmingle = async (hubspotStudents) => {
 
     // check that student already exist or not
     // Search student api
+    // TODO: this api needs to work properly in postman first
     const studentRecord = await axios.get(
       `${process.env.EDMINGLE_BASE_URL}/student/search`,
       {
